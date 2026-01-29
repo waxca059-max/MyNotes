@@ -22,6 +22,12 @@ if ($processId) {
     Start-Sleep -Seconds 1
 }
 
+if (-not (Test-Path "$PSScriptRoot/node_modules")) {
+    Write-Host "检测到 node_modules 缺失，正在安装生产依赖..." -ForegroundColor Cyan
+    Set-Location $PSScriptRoot
+    npm install --omit=dev
+}
+
 Write-Host "正在启动全栈服务 (生产模式)..." -ForegroundColor Green
 $env:PORT = $port
 $env:NODE_ENV = "production"

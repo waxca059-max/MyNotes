@@ -18,5 +18,10 @@ else
     sleep 1
 fi
 
+if [ ! -d "node_modules" ]; then
+    echo "检测到 node_modules 缺失，正在安装生产依赖..."
+    npm install --omit=dev
+fi
+
 echo "正在启动全栈服务 (生产模式)..."
 PORT=$PORT NODE_ENV=production node index.js

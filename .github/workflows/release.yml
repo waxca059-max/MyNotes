@@ -48,6 +48,7 @@ jobs:
           files: |
             release-linux.tar.gz
             release-windows.zip
+
           generate_release_notes: true
           draft: false
           prerelease: false
