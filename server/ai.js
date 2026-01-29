@@ -4,7 +4,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-dotenv.config();
+// 环境变量由 index.js 统一加载
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

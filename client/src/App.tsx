@@ -27,6 +27,12 @@ export default function App() {
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
+  // 设置文档标题
+  useEffect(() => {
+    const title = import.meta.env.VITE_APP_TITLE || 'My Notes';
+    document.title = title;
+  }, []);
+
   // 用于优化自动保存：记录最后一次成功保存或加载的内容/标签
   const lastSavedContentRef = useRef<string | null>(null);
   const lastSavedTagsRef = useRef<string[] | null>(null);

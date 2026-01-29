@@ -59,14 +59,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
   }, [notes]);
 
   return (
-    <div className="flex flex-col h-full bg-slate-50/30 dark:bg-slate-950/30 transition-colors">
+    <div className="flex flex-col h-full bg-white/40 dark:bg-slate-950/20 backdrop-blur-2xl transition-colors border-r border-white/10 dark:border-white/5 shadow-2xl">
       <div className="p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="bg-slate-900 dark:bg-slate-800 p-1.5 rounded-lg shadow-inner">
+            <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-2 rounded-xl shadow-lg shadow-blue-500/20">
               <StickyNote className="text-white" size={18} />
             </div>
-            <h1 className="text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100">
+            <h1 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
               我的笔记
             </h1>
           </div>
@@ -74,20 +74,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
             variant="default"
             size="sm"
             onClick={onAddNote}
-            className="rounded-lg px-3 flex gap-1.5 shadow-sm active:scale-95 transition-all bg-slate-900 dark:bg-slate-100 dark:text-slate-950 hover:bg-slate-800 dark:hover:bg-slate-200 text-white"
+            className="rounded-xl px-4 py-3 h-10 flex gap-2 shadow-lg shadow-blue-500/20 active:scale-95 transition-all bg-gradient-to-r from-blue-600 to-purple-600 text-white border-none hover:shadow-blue-500/40"
           >
-            <Plus size={16} strokeWidth={3} />
+            <Plus size={18} strokeWidth={3} />
             <span className="font-bold">新建</span>
           </Button>
         </div>
         
         <div className="relative group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-900 dark:group-focus-within:text-slate-100 transition-colors" size={15} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={15} />
           <Input
             placeholder="搜索笔记..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-9 h-9 bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800 shadow-none rounded-lg focus-visible:ring-1 focus-visible:ring-slate-400 dark:focus-visible:ring-slate-700 transition-all placeholder:text-slate-400 text-sm"
+            className="pl-9 h-11 bg-white/40 dark:bg-black/20 border-white/10 dark:border-white/5 shadow-inner rounded-xl focus:ring-4 focus:ring-blue-500/10 transition-all placeholder:text-slate-400 text-sm italic"
           />
         </div>
 
@@ -113,10 +113,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     key={tag}
                     variant={selectedTag === tag ? "default" : "secondary"}
                     onClick={() => onSelectTag(selectedTag === tag ? null : tag)}
-                    className={`cursor-pointer text-[10px] px-2 py-0 h-5 transition-all ${
+                    className={`cursor-pointer text-[10px] px-3 py-0.5 h-6 transition-all rounded-full shadow-sm ${
                       selectedTag === tag 
-                        ? 'bg-indigo-600 dark:bg-indigo-400 text-white dark:text-slate-900 shadow-sm' 
-                        : 'bg-indigo-50/50 dark:bg-indigo-900/20 text-indigo-500 dark:text-indigo-400 border-none'
+                        ? 'bg-blue-600 dark:bg-blue-500 text-white shadow-blue-500/30' 
+                        : 'bg-blue-500/5 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/10 hover:bg-blue-500/20'
                     }`}
                   >
                     #{tag}
@@ -154,12 +154,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.2 }}
                   onClick={() => onSelectNote(note.id)}
-                  className={`group p-3 rounded-lg cursor-pointer transition-all border ${
+                  className={`group p-4 rounded-2xl cursor-pointer transition-all border outline-none ${
                     activeNoteId === note.id 
-                      ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm' 
+                      ? 'bg-white dark:bg-white/10 border-white/20 dark:border-white/10 shadow-lg shadow-black/5 ring-1 ring-blue-500/20' 
                       : note.pinned
-                        ? 'bg-amber-50/30 dark:bg-amber-950/10 border-amber-100/50 dark:border-amber-900/30 text-slate-600'
-                        : 'bg-transparent border-transparent hover:bg-slate-200/40 dark:hover:bg-slate-800/40 text-slate-600 dark:text-slate-400'
+                        ? 'bg-amber-500/5 dark:bg-amber-500/5 border-amber-500/10 text-slate-600 dark:text-amber-500/80 hover:bg-amber-500/10'
+                        : 'bg-transparent border-transparent hover:bg-white/40 dark:hover:bg-white/5 text-slate-600 dark:text-slate-400'
                   }`}
                 >
                   <div className="flex justify-between items-start gap-2 mb-1">
@@ -194,7 +194,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         {note.category}
                       </Badge>
                       {note.tags?.slice(0, 2).map(tag => (
-                        <Badge key={tag} className="px-1.5 py-0 h-4 text-[9px] font-normal bg-indigo-50/50 dark:bg-indigo-900/20 text-indigo-500 dark:text-indigo-400 border-none whitespace-nowrap">
+                        <Badge key={tag} className="px-2 py-0 h-4 text-[9px] font-medium bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 border-none whitespace-nowrap rounded-full">
                           #{tag}
                         </Badge>
                       ))}
@@ -210,7 +210,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
       </ScrollArea>
 
-      <div className="p-4 border-t border-slate-200/60 dark:border-slate-800 space-y-3 bg-white/50 dark:bg-slate-950/50 transition-colors shrink-0">
+      <div className="p-4 border-t border-white/10 dark:border-white/5 space-y-3 bg-white/20 dark:bg-slate-900/10 transition-colors shrink-0 backdrop-blur-md">
         <div className="flex items-center justify-between">
           <Button
             variant="ghost"
@@ -219,10 +219,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
               e.stopPropagation();
               setTheme(theme === 'dark' ? 'light' : 'dark');
             }}
-            className="h-8 w-8 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+            className="h-10 w-10 text-slate-500 hover:text-blue-500 hover:bg-blue-500/10 rounded-xl transition-all active:scale-90"
           >
-            <Sun size={16} className="rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon size={16} className="absolute rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <Sun size={18} className="translate-y-0 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon size={18} className="absolute rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             <span className="sr-only">切换主题</span>
           </Button>
  
@@ -234,15 +234,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onLogout();
             }}
             title="退出登录"
-            className="h-8 w-8 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all"
+            className="h-10 w-10 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all active:scale-90"
           >
-            <LogOut size={16} />
+            <LogOut size={18} />
           </Button>
         </div>
         
         <div className="flex items-center justify-between px-1">
-          <span className="text-[10px] font-medium text-slate-400 dark:text-slate-600 uppercase tracking-widest">
-            Version 1.3.0
+          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-[0.2em] opacity-50">
+            System v1.3.0
           </span>
         </div>
       </div>

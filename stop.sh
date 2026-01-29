@@ -1,6 +1,10 @@
 #!/bin/bash
 
-PORT=3000
+# 从根目录 .env.production 提取端口号
+if [ -f ".env.production" ]; then
+    PORT=$(grep '^PORT=' .env.production | cut -d '=' -f 2)
+fi
+PORT=${PORT:-3000}
 echo "正在尝试停止运行在端口 $PORT 的全栈服务..."
 
 PID=$(lsof -t -i:$PORT)
