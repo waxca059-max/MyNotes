@@ -8,7 +8,7 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const dbPath = path.resolve(__dirname, process.env.DATABASE_PATH || '../data/notes.db');
+const dbPath = path.resolve(__dirname, process.env.DATABASE_PATH || './data/notes.db');
 const db = new Database(dbPath);
 
 // 初始化数据库表
