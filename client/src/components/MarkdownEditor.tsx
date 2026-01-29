@@ -3,12 +3,14 @@ import ReactMarkdown from 'react-markdown';
 import type { Note } from '@/api/notes';
 import { notesApi } from '@/api/notes';
 import {
-  ImageIcon, Eye, Edit3, Save, Download, X, Sparkles, Wand2, Loader2, Pin, Hash, Columns, MessageSquare, LayoutTemplate
+  ImageIcon, Eye, Edit3, Save, Download, X, Sparkles, Wand2, Loader2, Pin, Hash, Columns, MessageSquare, LayoutTemplate,
+  Bold, Italic, Link2, List, ListOrdered, Quote, Heading1, Heading2, Heading3, MinusSquare, Code, CheckSquare
 } from 'lucide-react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 // Shadcn UI Components
 import { Button } from "@/components/ui/button";
@@ -23,6 +25,30 @@ interface MarkdownEditorProps {
   onSave: () => void;
 }
 
+const FormatButton: React.FC<{ 
+  icon: React.ReactNode; 
+  label: string; 
+  shortcut?: string; 
+  onClick: () => void;
+}> = ({ icon, label, shortcut, onClick }) => (
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        className="h-7 w-7 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 transition-colors" 
+        onClick={onClick}
+      >
+        {icon}
+      </Button>
+    </TooltipTrigger>
+    <TooltipContent side="bottom" className="flex flex-col items-center gap-1 p-2">
+      <span className="text-[11px] font-bold">{label}</span>
+      {shortcut && <span className="text-[9px] opacity-60 font-mono bg-slate-100 dark:bg-slate-800 px-1 rounded">{shortcut}</span>}
+    </TooltipContent>
+  </Tooltip>
+);
+
 export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, onSave }) => {
   const [view, setView] = React.useState<'edit' | 'preview' | 'both'>('both');
   const [tagInput, setTagInput] = React.useState('');
@@ -36,7 +62,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
     if (window.innerWidth < 768 && view === 'both') {
       setView('edit');
     }
-  }, []);
+  }, [view]);
 
   const handleAiSummarize = async () => {
     if (!note.content) return toast.error('请先输入内容');
@@ -129,6 +155,118 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
 
   const removeTag = (tagToRemove: string) => {
     onChange({ tags: (note.tags || []).filter(t => t !== tagToRemove) });
+  };
+
+  const applyFormat = (type: 'bold' | 'italic' | 'link' | 'quote' | 'code' | 'h1' | 'h2' | 'h3' | 'ul' | 'ol' | 'todo' | 'hr') => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = note.content.substring(start, end);
+    let replacement = '';
+    let selectionOffset = 0;
+    let selectionLength = 0;
+
+    switch (type) {
+      case 'bold':
+        replacement = `**${selectedText || '加粗文字'}**`;
+        selectionOffset = 2;
+        selectionLength = selectedText ? selectedText.length : 4;
+        break;
+      case 'italic':
+        replacement = `*${selectedText || '斜体文字'}*`;
+        selectionOffset = 1;
+        selectionLength = selectedText ? selectedText.length : 4;
+        break;
+      case 'link':
+        replacement = `[${selectedText || '链接描述'}](url)`;
+        selectionOffset = selectedText ? selectedText.length + 3 : 1;
+        selectionLength = selectedText ? 3 : 4;
+        break;
+      case 'quote':
+        replacement = `\n> ${selectedText || '引用文字'}\n`;
+        selectionOffset = 3;
+        selectionLength = selectedText ? selectedText.length : 4;
+        break;
+      case 'code':
+        replacement = selectedText.includes('\n') 
+          ? `\n\`\`\`javascript\n${selectedText || '// 代码'}\n\`\`\`\n`
+          : `\`${selectedText || '行内代码'}\``;
+        selectionOffset = selectedText.includes('\n') ? 15 : 1;
+        selectionLength = selectedText ? selectedText.length : (selectedText.includes('\n') ? 4 : 4);
+        break;
+      case 'h1':
+        replacement = `\n# ${selectedText || '一级标题'}\n`;
+        selectionOffset = 3;
+        selectionLength = selectedText ? selectedText.length : 4;
+        break;
+      case 'h2':
+        replacement = `\n## ${selectedText || '二级标题'}\n`;
+        selectionOffset = 4;
+        selectionLength = selectedText ? selectedText.length : 4;
+        break;
+      case 'h3':
+        replacement = `\n### ${selectedText || '三级标题'}\n`;
+        selectionOffset = 5;
+        selectionLength = selectedText ? selectedText.length : 4;
+        break;
+      case 'ul':
+        replacement = `\n- ${selectedText || '列表项目'}\n`;
+        selectionOffset = 3;
+        selectionLength = selectedText ? selectedText.length : 4;
+        break;
+      case 'ol':
+        replacement = `\n1. ${selectedText || '列表项目'}\n`;
+        selectionOffset = 4;
+        selectionLength = selectedText ? selectedText.length : 4;
+        break;
+      case 'todo':
+        replacement = `\n- [ ] ${selectedText || '待办事项'}\n`;
+        selectionOffset = 7;
+        selectionLength = selectedText ? selectedText.length : 4;
+        break;
+      case 'hr':
+        replacement = `\n---\n`;
+        selectionOffset = 5;
+        selectionLength = 0;
+        break;
+    }
+
+    const newContent = note.content.substring(0, start) + replacement + note.content.substring(end);
+    onChange({ content: newContent });
+
+    setTimeout(() => {
+      textarea.focus();
+      if (selectedText) {
+        textarea.setSelectionRange(start + replacement.length, start + replacement.length);
+      } else {
+        textarea.setSelectionRange(start + selectionOffset, start + selectionOffset + selectionLength);
+      }
+    }, 0);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.ctrlKey || e.metaKey) {
+      switch (e.key.toLowerCase()) {
+        case 'b':
+          e.preventDefault();
+          applyFormat('bold');
+          break;
+        case 'i':
+          e.preventDefault();
+          applyFormat('italic');
+          break;
+        case 'k':
+          e.preventDefault();
+          applyFormat('link');
+          break;
+        case 's':
+          e.preventDefault();
+          onSave();
+          break;
+      }
+    }
   };
 
   const insertTextAtCursor = (text: string) => {
@@ -325,6 +463,52 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
         </div>
       </header>
 
+      {/* 增强格式工具栏 */}
+      <div className="px-6 py-1.5 bg-slate-50/30 dark:bg-slate-900/10 border-b border-slate-100 dark:border-slate-800/40 flex items-center gap-1 overflow-x-auto no-scrollbar">
+        <TooltipProvider>
+          <div className="flex items-center gap-0.5 pr-2 border-r border-slate-200 dark:border-slate-800">
+            <FormatButton icon={<Bold size={14} />} label="加粗" shortcut="Ctrl+B" onClick={() => applyFormat('bold')} />
+            <FormatButton icon={<Italic size={14} />} label="斜体" shortcut="Ctrl+I" onClick={() => applyFormat('italic')} />
+            <FormatButton icon={<Heading1 size={14} />} label="一级标题" onClick={() => applyFormat('h1')} />
+            <FormatButton icon={<Heading2 size={14} />} label="二级标题" onClick={() => applyFormat('h2')} />
+            <FormatButton icon={<Heading3 size={14} />} label="三级标题" onClick={() => applyFormat('h3')} />
+          </div>
+          
+          <div className="flex items-center gap-0.5 px-2 border-r border-slate-200 dark:border-slate-800">
+            <FormatButton icon={<List size={14} />} label="无序列表" onClick={() => applyFormat('ul')} />
+            <FormatButton icon={<ListOrdered size={14} />} label="有序列表" onClick={() => applyFormat('ol')} />
+            <FormatButton icon={<CheckSquare size={14} />} label="待办事项" onClick={() => applyFormat('todo')} />
+          </div>
+
+          <div className="flex items-center gap-0.5 px-2 border-r border-slate-200 dark:border-slate-800">
+            <FormatButton icon={<Quote size={14} />} label="引用" onClick={() => applyFormat('quote')} />
+            <FormatButton icon={<Code size={14} />} label="代码块" onClick={() => applyFormat('code')} />
+            <FormatButton icon={<Link2 size={14} />} label="链接" shortcut="Ctrl+K" onClick={() => applyFormat('link')} />
+            <FormatButton icon={<MinusSquare size={14} />} label="分割线" onClick={() => applyFormat('hr')} />
+          </div>
+
+          <div className="flex items-center gap-0.5 pl-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-500" onClick={() => {
+                  const input = document.createElement('input');
+                  input.type = 'file';
+                  input.accept = 'image/*';
+                  input.onchange = (e) => {
+                    const file = (e.target as HTMLInputElement).files?.[0];
+                    if (file) handleImageUpload(file);
+                  };
+                  input.click();
+                }}>
+                  <ImageIcon size={14} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-[10px]">插入图片</TooltipContent>
+            </Tooltip>
+          </div>
+        </TooltipProvider>
+      </div>
+
       {/* 标签与上传状态栏 */}
       <div className="px-6 py-2 bg-slate-50/50 dark:bg-slate-900/30 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between min-h-[40px]">
         <div className="flex items-center gap-2 flex-wrap flex-1">
@@ -384,6 +568,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
               value={note.content}
               onChange={(e) => onChange({ content: e.target.value })}
               onPaste={handlePaste}
+              onKeyDown={handleKeyDown}
               onDrop={handleDrop}
               placeholder="开始编写 Markdown 笔记 (支持粘贴/拖入图片)..."
               className={`flex-1 p-10 outline-none resize-none text-slate-700 dark:text-slate-300 leading-relaxed font-mono text-[14px] bg-white dark:bg-slate-950 shadow-sm placeholder:text-slate-300 dark:placeholder:text-slate-700 selection:bg-indigo-50 dark:selection:bg-indigo-900/50 ${view === 'both' ? 'border-r-2 border-slate-100/50 dark:border-slate-800/30' : ''}`}
