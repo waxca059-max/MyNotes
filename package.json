@@ -5,7 +5,7 @@
   "scripts": {
     "install:all": "npm install && cd client && npm install && cd ../server && npm install",
     "build:client": "cd client && npm run build",
-    "build:server": "rimraf server/public && shx mkdir -p server/public && shx cp -r client/dist/* server/public/ && shx cp .env.production server/ && shx cp .env.example server/",
+    "build:server": "rimraf server/public && shx mkdir -p server/public && shx cp -r client/dist/* server/public/",
     "build": "npm run build:client && npm run build:server",
     "package": "npm run build && rimraf release.zip && jszip -r release.zip server/",
     "start": "cd server && cross-env NODE_ENV=production node index.js",

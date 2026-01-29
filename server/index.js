@@ -17,13 +17,9 @@ import logger from './utils/logger.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 环境变量加载逻辑 (优先加载同级配置)
+// 环境变量加载逻辑 (加载当前目录下的环境文件)
 const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
 dotenv.config({ path: path.join(__dirname, envFile), override: true });
-// 如果同级没有，回退到上级目录 (兼容开发模式)
-if (process.env.NODE_ENV !== 'production' && !process.env.JWT_SECRET) {
-  dotenv.config({ path: path.join(__dirname, '..', envFile), override: true });
-}
 
 // 已移除旧的 writeErrorLog，改用 utils/logger.js
 

@@ -5,8 +5,8 @@ import path from 'path'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-  // 加载根目录对应的环境文件
-  const envFilePath = path.resolve(__dirname, '..');
+  // 加载 server 目录下的环境文件
+  const envFilePath = path.resolve(__dirname, '../server');
   const rootEnv = loadEnv(mode, envFilePath, '');
   
   const backendPort = rootEnv.PORT || '3002';
