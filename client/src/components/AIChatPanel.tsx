@@ -56,10 +56,11 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({ noteContent, onClose, 
 
   return (
     <motion.div
-      initial={{ x: 550, opacity: 0 }}
+      initial={{ x: '100%', opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
-      exit={{ x: 550, opacity: 0 }}
-      className="w-[500px] h-full border-l border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/50 backdrop-blur-xl flex flex-col shadow-2xl relative z-40"
+      exit={{ x: '100%', opacity: 0 }}
+      transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+      className="w-full md:w-[500px] h-full border-l border-slate-100 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 md:bg-slate-50/80 md:dark:bg-slate-900/50 backdrop-blur-2xl flex flex-col shadow-2xl relative z-40"
     >
       <header className="h-16 px-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">

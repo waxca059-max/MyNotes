@@ -207,6 +207,7 @@ export default function App() {
 
   return (
     <Layout
+      onOpenCommand={() => setIsCommandOpen(true)}
       sidebar={
         <Sidebar 
           notes={filteredNotesByTag}

@@ -31,6 +31,13 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
   const [showAIChat, setShowAIChat] = React.useState(false);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
+  // 移动端默认单栏视图 (修复“挤在一起”的问题)
+  React.useEffect(() => {
+    if (window.innerWidth < 768 && view === 'both') {
+      setView('edit');
+    }
+  }, []);
+
   const handleAiSummarize = async () => {
     if (!note.content) return toast.error('请先输入内容');
     setAiLoading(true);
@@ -197,7 +204,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
   return (
     <div className="flex flex-col h-full bg-white dark:bg-slate-950 transition-colors">
       <header className="h-16 px-6 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between shrink-0 bg-white/50 dark:bg-slate-950/50 backdrop-blur-sm z-10">
-        <div className="flex-1 max-w-2xl flex items-center space-x-3">
+        <div className="flex-1 min-w-0 max-w-2xl flex items-center space-x-2 md:space-x-3">
           <Button
             variant="ghost"
             size="icon"
@@ -213,11 +220,11 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
             onChange={(e) => onChange({ title: e.target.value })}
             className="text-xl font-bold bg-transparent border-none outline-none w-full text-slate-900 dark:text-slate-100 placeholder:text-slate-200 dark:placeholder:text-slate-800"
           />
-          <Badge variant="outline" className="text-[10px] h-5 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
+          <Badge variant="outline" className="hidden sm:flex text-[10px] h-5 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider shrink-0">
             {note.category}
           </Badge>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4 shrink-0">
           {/* 视图切换 */}
           <div className="flex bg-slate-100/80 dark:bg-slate-900 p-1 rounded-lg">
             <Button
@@ -258,7 +265,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
               className="h-8 px-2.5 text-indigo-600 dark:text-indigo-400 hover:bg-white dark:hover:bg-indigo-900/40 hover:shadow-sm rounded-lg flex gap-1.5 transition-all group"
             >
               {aiLoading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} className="group-hover:animate-pulse" />}
-              <span className="text-[11px] font-bold">AI 摘要</span>
+              <span className="hidden lg:inline text-[11px] font-bold">AI 摘要</span>
             </Button>
             <Button
               variant="ghost"
@@ -268,7 +275,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
               className="h-8 px-2.5 text-indigo-600 dark:text-indigo-400 hover:bg-white dark:hover:bg-indigo-900/40 hover:shadow-sm rounded-lg flex gap-1.5 transition-all group"
             >
               {aiLoading ? <Loader2 size={14} className="animate-spin" /> : <Wand2 size={14} className="group-hover:rotate-12 transition-transform" />}
-              <span className="text-[11px] font-bold">AI 标签</span>
+              <span className="hidden lg:inline text-[11px] font-bold">AI 标签</span>
             </Button>
             <Button
               variant="ghost"
@@ -278,7 +285,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
               className="h-8 px-2.5 text-indigo-600 dark:text-indigo-400 hover:bg-white dark:hover:bg-indigo-900/40 hover:shadow-sm rounded-lg flex gap-1.5 transition-all group"
             >
               {aiLoading ? <Loader2 size={14} className="animate-spin" /> : <LayoutTemplate size={14} className="group-hover:scale-110 transition-transform" />}
-              <span className="text-[11px] font-bold">一键排版</span>
+              <span className="hidden lg:inline text-[11px] font-bold">一键排版</span>
             </Button>
           </div>
           
@@ -292,27 +299,27 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
               className={`h-9 px-3 gap-2 rounded-lg border border-transparent transition-all ${showAIChat ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 border-indigo-200' : 'text-slate-600'}`}
             >
               <MessageSquare size={16} />
-              <span className="text-xs font-bold">AI 助手</span>
+              <span className="hidden sm:inline text-xs font-bold">AI 助手</span>
             </Button>
 
             <Separator orientation="vertical" className="h-6 bg-slate-200 dark:bg-slate-800" />
             <Button
               variant="outline"
-              size="icon"
               onClick={handleExport}
               title="导出为 Markdown"
-              className="h-9 w-9 rounded-lg border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900"
+              className="h-9 px-2 md:px-3 rounded-lg border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 flex items-center"
             >
               <Download size={16} />
+              <span className="hidden sm:inline text-xs font-bold ml-1.5">导出</span>
             </Button>
             
             <Button
               onClick={onSave}
               variant="default"
-              className="gap-2 px-5 py-2 h-9 rounded-lg shadow-sm active:scale-95 transition-all bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-950 hover:bg-slate-800 dark:hover:bg-slate-200"
+              className="gap-2 px-3 md:px-5 py-2 h-9 rounded-lg shadow-sm active:scale-95 transition-all bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-950 hover:bg-slate-800 dark:hover:bg-slate-200"
             >
               <Save size={16} />
-              <span className="font-bold">保存</span>
+              <span className="hidden xs:inline font-bold">保存</span>
             </Button>
           </div>
         </div>
@@ -400,11 +407,13 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
         
         <AnimatePresence>
           {showAIChat && (
-            <AIChatPanel 
-              noteContent={note.content} 
-              onClose={() => setShowAIChat(false)}
-              onInsertContent={insertTextAtCursor}
-            />
+            <div className="fixed md:absolute inset-0 md:inset-auto md:right-0 md:top-0 md:bottom-0 z-50 md:z-40">
+              <AIChatPanel 
+                noteContent={note.content} 
+                onClose={() => setShowAIChat(false)}
+                onInsertContent={insertTextAtCursor}
+              />
+            </div>
           )}
         </AnimatePresence>
       </div>

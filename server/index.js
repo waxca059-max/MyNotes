@@ -349,3 +349,19 @@ app.listen(PORT, async () => {
     writeErrorLog(err);
   }
 });
+
+// 优雅退出处理
+const gracefulShutdown = () => {
+  console.log('\nReceived signal to terminate. Closing database connection...');
+  try {
+    db.close();
+    console.log('SQLite connection closed. Exiting process.');
+    process.exit(0);
+  } catch (err) {
+    console.error('Error during database closure:', err);
+    process.exit(1);
+  }
+};
+
+process.on('SIGINT', gracefulShutdown);
+process.on('SIGTERM', gracefulShutdown);
