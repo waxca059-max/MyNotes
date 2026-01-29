@@ -73,7 +73,7 @@ export const Auth: React.FC<AuthProps> = ({ onAuthSuccess }) => {
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4 pt-4">
+            <CardContent className="space-y-4 pt-4 pb-6">
               <div className="space-y-2">
                 <Label htmlFor="username" className="text-[12px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">用户名</Label>
                 <Input
@@ -85,7 +85,7 @@ export const Auth: React.FC<AuthProps> = ({ onAuthSuccess }) => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" dir="ltr" className="text-[12px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 text-right w-full block">密码</Label>
+                <Label htmlFor="password" className="text-[12px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">密码</Label>
                 <Input
                   id="password"
                   type="password"
