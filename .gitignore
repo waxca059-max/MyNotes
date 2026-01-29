@@ -43,6 +43,4 @@ server/test_*.js
 # Uploads
 data/uploads/
 
-# Agent files
-.agent/
 
