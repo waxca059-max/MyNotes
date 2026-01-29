@@ -42,10 +42,10 @@ npm run install:all
 
 ### 2. 配置环境
 
-本项目采用多环境配置，请在根目录下修改对应的环境文件：
+本项目采用多环境配置，请在 `server` 目录下修改对应的环境文件：
 
-- 开发环境: `.env.development`
-- 生产环境: `.env.production`
+- 开发环境: `server/.env.development`
+- 生产环境: `server/.env.production`
 
 主要配置项包括：
 
@@ -82,11 +82,12 @@ npm run dev # 同时启动前后端
 my-notes-fullstack/
 ├── client/           # 前端 React 应用 (Vite + TS)
 ├── server/           # 后端 Express 服务器
-├── data/             # 数据库文件及上传资源
-│   ├── notes.db      # SQLite 数据库
-│   └── uploads/      # 用户上传图片
-├── .env.development  # 开发环境配置
-├── .env.production   # 生产环境配置
+│   ├── data/         # 数据库文件及上传资源
+│   │   ├── notes.db  # SQLite 数据库
+│   │   └── uploads/  # 用户上传图片
+│   ├── .env.development # 环境配置
+│   ├── .env.production  # 生产环境配置
+│   └── index.js      # 入口文件
 ├── start.*           # 各平台启动脚本
 ├── stop.*            # 各平台停止脚本
 └── package.json      # 项目管理配置
