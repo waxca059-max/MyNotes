@@ -30,15 +30,13 @@ jobs:
 
       - name: Prepare Release Assets
         run: |
-          # 移除 server 中的 node_modules 以减小体积
-          rm -rf server/node_modules
-          # 直接打包 server 目录
-          zip -r release-package.zip server
+          # 直接打包编译后的 dist 目录
+          zip -r release.zip dist
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: release-package.zip
+          files: release.zip
           generate_release_notes: true
           draft: false
           prerelease: false
