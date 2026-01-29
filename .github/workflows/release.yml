@@ -10,7 +10,10 @@ permissions:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout code
@@ -28,15 +31,23 @@ jobs:
       - name: Build Project
         run: npm run build
 
-      - name: Prepare Release Assets
+      - name: Prepare Release Assets (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: tar -czf release-linux.tar.gz dist
+
+      - name: Prepare Release Assets (Windows)
+        if: matrix.os == 'windows-latest'
         run: |
-          # 直接打包编译后的 dist 目录
-          zip -r release.zip dist
+          # Windows 环境下使用 jszip-cli 生成 zip (package.json 中已配置)
+          # 或者直接使用 powershell 压缩
+          powershell -Command "Compress-Archive -Path dist -DestinationPath release-windows.zip"
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: release.zip
+          files: |
+            release-linux.tar.gz
+            release-windows.zip
           generate_release_notes: true
           draft: false
           prerelease: false
