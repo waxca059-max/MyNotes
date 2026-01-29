@@ -1,7 +1,7 @@
 # 强制设置控制台输出为 UTF8 以解决中文乱码
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
-# 从根目录读取端口号 (.env.production)
+# 从同级目录读取端口号 (.env.production)
 $prodEnvFile = Join-Path $PSScriptRoot ".env.production"
 $port = 3000
 
@@ -23,7 +23,6 @@ if ($processId) {
 }
 
 Write-Host "正在启动全栈服务 (生产模式)..." -ForegroundColor Green
-Set-Location server
 $env:PORT = $port
 $env:NODE_ENV = "production"
 node index.js

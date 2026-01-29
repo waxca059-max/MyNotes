@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 从根目录 .env.production 提取端口号
+# 从同级目录 .env.production 提取端口号
 if [ -f ".env.production" ]; then
     PORT=$(grep '^PORT=' .env.production | cut -d '=' -f 2)
 fi
@@ -19,5 +19,4 @@ else
 fi
 
 echo "正在启动全栈服务 (生产模式)..."
-cd server
 PORT=$PORT NODE_ENV=production node index.js

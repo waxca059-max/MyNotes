@@ -17,9 +17,13 @@ import logger from './utils/logger.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 环境变量加载逻辑
+// 环境变量加载逻辑 (优先加载同级配置)
 const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
-dotenv.config({ path: path.join(__dirname, '..', envFile), override: true });
+dotenv.config({ path: path.join(__dirname, envFile), override: true });
+// 如果同级没有，回退到上级目录 (兼容开发模式)
+if (process.env.NODE_ENV !== 'production' && !process.env.JWT_SECRET) {
+  dotenv.config({ path: path.join(__dirname, '..', envFile), override: true });
+}
 
 // 已移除旧的 writeErrorLog，改用 utils/logger.js
 
@@ -27,8 +31,8 @@ dotenv.config({ path: path.join(__dirname, '..', envFile), override: true });
 const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
-const UPLOADS_PATH = path.join(__dirname, '..', 'data', 'uploads');
-const CLIENT_DIST_PATH = path.join(__dirname, '..', 'client', 'dist');
+const UPLOADS_PATH = path.join(__dirname, 'data', 'uploads');
+const CLIENT_DIST_PATH = path.join(__dirname, 'public');
 
 // 确认文件夹存在
 if (!existsSync(UPLOADS_PATH)) {
