@@ -36,13 +36,13 @@ const FormatButton: React.FC<{
       <Button 
         variant="ghost" 
         size="icon" 
-        className="h-7 w-7 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 transition-colors" 
+        className="h-8 w-8 text-slate-500 hover:text-blue-500 hover:bg-blue-500/10 dark:hover:bg-blue-500/10 transition-all rounded-lg active:scale-90" 
         onClick={onClick}
       >
         {icon}
       </Button>
     </TooltipTrigger>
-    <TooltipContent side="bottom" className="flex flex-col items-center gap-1 p-2">
+    <TooltipContent side="bottom" className="flex flex-col items-center gap-1 p-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-white/20">
       <span className="text-[11px] font-bold">{label}</span>
       {shortcut && <span className="text-[9px] opacity-60 font-mono bg-slate-100 dark:bg-slate-800 px-1 rounded">{shortcut}</span>}
     </TooltipContent>
@@ -342,25 +342,25 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
   const readingTime = Math.ceil(wordCount / 400) || 1;
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-slate-950 transition-colors overflow-hidden">
-      <header className="h-16 px-3 md:px-6 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between shrink-0 bg-white/50 dark:bg-slate-950/50 backdrop-blur-sm z-10">
+    <div className="flex flex-col h-full bg-white/40 dark:bg-[#0F172A]/20 transition-colors overflow-hidden backdrop-blur-[2px]">
+      <header className="h-16 px-3 md:px-6 border-b border-white/10 dark:border-white/5 flex items-center justify-between shrink-0 bg-white/60 dark:bg-slate-950/20 backdrop-blur-xl z-10 shadow-sm">
         <div className="flex-1 min-w-0 flex items-center space-x-1 md:space-x-3">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => onChange({ pinned: !note.pinned })}
-            className={`h-8 w-8 transition-colors ${note.pinned ? 'text-amber-500 bg-amber-50 dark:bg-amber-950/30' : 'text-slate-300 dark:text-slate-700'}`}
+            className={`h-9 w-9 transition-all rounded-xl ${note.pinned ? 'text-amber-500 bg-amber-500/10' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'}`}
           >
-            {note.pinned ? <Pin size={16} fill="currentColor" /> : <Pin size={16} />}
+            {note.pinned ? <Pin size={18} fill="currentColor" /> : <Pin size={18} />}
           </Button>
           <input
             type="text"
             placeholder="笔记标题"
             value={note.title}
             onChange={(e) => onChange({ title: e.target.value })}
-            className="text-lg md:text-xl font-bold bg-transparent border-none outline-none w-full min-w-0 text-slate-900 dark:text-slate-100 placeholder:text-slate-200 dark:placeholder:text-slate-800"
+            className="text-lg md:text-xl font-bold bg-transparent border-none outline-none w-full min-w-0 text-slate-950 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-700 selection:bg-blue-500/30"
           />
-          <Badge variant="outline" className="hidden lg:flex text-[10px] h-5 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider shrink-0">
+          <Badge variant="outline" className="hidden lg:flex text-[10px] h-6 bg-blue-500/5 dark:bg-blue-500/10 border-blue-500/20 text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider shrink-0 rounded-full px-3">
             {note.category}
           </Badge>
         </div>
@@ -396,15 +396,15 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
           <Separator orientation="vertical" className="h-6 bg-slate-200 dark:bg-slate-800" />
 
           {/* AI 智能工具 */}
-          <div className="flex items-center gap-1.5 px-1.5 py-1 bg-indigo-50/50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100/50 dark:border-indigo-800/30">
+          <div className="flex items-center gap-1.5 px-2 py-1.5 bg-gradient-to-r from-blue-500/10 to-purple-500/10 dark:from-blue-500/5 dark:to-purple-500/5 rounded-2xl border border-blue-500/20 dark:border-blue-500/10 shadow-inner">
             <Button
               variant="ghost"
               size="sm"
               disabled={aiLoading}
               onClick={handleAiSummarize}
-              className="h-8 px-2.5 text-indigo-600 dark:text-indigo-400 hover:bg-white dark:hover:bg-indigo-900/40 hover:shadow-sm rounded-lg flex gap-1.5 transition-all group"
+              className="h-8 px-3 text-blue-600 dark:text-blue-400 hover:bg-white dark:hover:bg-white/10 hover:shadow-md rounded-xl flex gap-1.5 transition-all group active:scale-95"
             >
-              {aiLoading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} className="group-hover:animate-pulse" />}
+              {aiLoading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} className="group-hover:animate-pulse text-blue-500" />}
               <span className="hidden lg:inline text-[11px] font-bold">AI 摘要</span>
             </Button>
             <Button
@@ -412,9 +412,9 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
               size="sm"
               disabled={aiLoading}
               onClick={handleAiSuggestTags}
-              className="h-8 px-2.5 text-indigo-600 dark:text-indigo-400 hover:bg-white dark:hover:bg-indigo-900/40 hover:shadow-sm rounded-lg flex gap-1.5 transition-all group"
+              className="h-8 px-3 text-purple-600 dark:text-purple-400 hover:bg-white dark:hover:bg-white/10 hover:shadow-md rounded-xl flex gap-1.5 transition-all group active:scale-95"
             >
-              {aiLoading ? <Loader2 size={14} className="animate-spin" /> : <Wand2 size={14} className="group-hover:rotate-12 transition-transform" />}
+              {aiLoading ? <Loader2 size={14} className="animate-spin" /> : <Wand2 size={14} className="group-hover:rotate-12 transition-transform text-purple-500" />}
               <span className="hidden lg:inline text-[11px] font-bold">AI 标签</span>
             </Button>
             <Button
@@ -422,9 +422,9 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
               size="sm"
               disabled={aiLoading}
               onClick={handleAiFormat}
-              className="h-8 px-2.5 text-indigo-600 dark:text-indigo-400 hover:bg-white dark:hover:bg-indigo-900/40 hover:shadow-sm rounded-lg flex gap-1.5 transition-all group"
+              className="h-8 px-3 text-orange-600 dark:text-orange-400 hover:bg-white dark:hover:bg-white/10 hover:shadow-md rounded-xl flex gap-1.5 transition-all group active:scale-95"
             >
-              {aiLoading ? <Loader2 size={14} className="animate-spin" /> : <LayoutTemplate size={14} className="group-hover:scale-110 transition-transform" />}
+              {aiLoading ? <Loader2 size={14} className="animate-spin" /> : <LayoutTemplate size={14} className="group-hover:scale-110 transition-transform text-orange-500" />}
               <span className="hidden lg:inline text-[11px] font-bold">一键排版</span>
             </Button>
           </div>
@@ -436,18 +436,19 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
               variant={showAIChat ? "secondary" : "ghost"}
               size="sm"
               onClick={() => setShowAIChat(!showAIChat)}
-              className={`h-9 px-2 md:px-3 gap-2 rounded-lg border border-transparent transition-all ${showAIChat ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 border-indigo-200' : 'text-slate-600'}`}
+              className={`h-9 px-2 md:px-4 gap-2 rounded-xl border transition-all active:scale-95 ${showAIChat ? 'bg-blue-500/10 text-blue-600 border-blue-500/20' : 'text-slate-600 border-transparent hover:bg-slate-100 dark:hover:bg-white/5'}`}
             >
-              <MessageSquare size={16} />
+              <MessageSquare size={16} className={showAIChat ? "animate-bounce" : ""} />
               <span className="hidden xl:inline text-xs font-bold">AI 助手</span>
             </Button>
 
-            <Separator orientation="vertical" className="h-6 bg-slate-200 dark:bg-slate-800 hidden md:block" />
+            <Separator orientation="vertical" className="h-6 bg-white/10 hidden md:block" />
+            
             <Button
               variant="outline"
               onClick={handleExport}
               title="导出为 Markdown"
-              className="hidden sm:flex h-9 px-2 md:px-3 rounded-lg border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 items-center"
+              className="hidden sm:flex h-9 px-3 rounded-xl border-white/10 dark:border-white/5 text-slate-600 dark:text-slate-400 hover:bg-white/10 dark:hover:bg-white/5 items-center transition-all active:scale-95"
             >
               <Download size={16} />
               <span className="hidden xl:inline text-xs font-bold ml-1.5">导出</span>
@@ -456,7 +457,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
             <Button
               onClick={onSave}
               variant="default"
-              className="gap-2 px-3 md:px-5 py-2 h-9 rounded-lg shadow-sm active:scale-95 transition-all bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-950 hover:bg-slate-800 dark:hover:bg-slate-200"
+              className="px-4 md:px-6 h-9 rounded-xl active:scale-95 transition-all"
             >
               <Save size={16} />
               <span className="hidden sm:inline font-bold">保存</span>
@@ -519,19 +520,19 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
             <AnimatePresence>
               {note.tags?.map(tag => (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
+                  initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.8 }}
                   key={tag}
                 >
                   <Badge 
                     variant="secondary" 
-                    className="pl-2 pr-1 h-5 text-[10px] bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 border-none flex items-center group"
+                    className="pl-2 pr-1 h-6 text-[10px] bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 border-none flex items-center group shadow-sm rounded-full"
                   >
                     {tag}
                     <button 
                       onClick={() => removeTag(tag)}
-                      className="ml-1 p-0.5 rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-800 transition-colors"
+                      className="ml-1 p-0.5 rounded-full hover:bg-blue-500/20 dark:hover:bg-blue-500/30 transition-colors"
                     >
                       <X size={10} />
                     </button>
@@ -573,7 +574,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
               onKeyDown={handleKeyDown}
               onDrop={handleDrop}
               placeholder="开始编写 Markdown 笔记 (支持粘贴/拖入图片)..."
-              className={`flex-1 p-3 md:p-10 outline-none resize-none text-slate-700 dark:text-slate-300 leading-relaxed font-mono text-[14px] bg-white dark:bg-slate-950 shadow-sm placeholder:text-slate-300 dark:placeholder:text-slate-700 selection:bg-indigo-50 dark:selection:bg-indigo-900/50 w-full min-w-0 ${view === 'both' ? 'border-r-2 border-slate-100/50 dark:border-slate-800/30' : ''}`}
+              className={`flex-1 p-3 md:p-10 outline-none resize-none text-slate-800 dark:text-slate-200 leading-relaxed font-mono text-[15px] bg-transparent placeholder:text-slate-300 dark:placeholder:text-slate-700 selection:bg-blue-500/20 w-full min-w-0 ${view === 'both' ? 'border-r border-white/10' : ''}`}
             />
           </div>
         )}

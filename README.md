@@ -44,7 +44,7 @@ npm run install:all
 在 `server` 目录下创建 `.env` 文件，并配置以下环境变量：
 
 ```env
-PORT=3000
+PORT=3002
 JWT_SECRET=your_jwt_secret_key
 GEMINI_API_KEY=your_gemini_api_key
 ```
@@ -58,7 +58,7 @@ GEMINI_API_KEY=your_gemini_api_key
 ```bash
 # 同时启动前后端（建议分窗口运行）
 npm run dev:client  # 前端: http://localhost:3001
-npm run dev:server  # 后端: http://localhost:3000
+npm run dev:server  # 后端: http://localhost:3002
 ```
 
 #### 一键脚本方式 (推荐)

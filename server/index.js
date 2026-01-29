@@ -9,40 +9,20 @@ import multer from 'multer';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import morgan from 'morgan';
 import db from './db.js';
 import { aiService } from './ai.js';
-
-dotenv.config();
+import logger from './utils/logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const LOGS_DIR = path.join(__dirname, 'logs');
-const ERROR_LOG = path.join(LOGS_DIR, 'error.log');
+// 环境变量加载逻辑
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
+dotenv.config({ path: path.join(__dirname, '..', envFile), override: true });
 
-// 确保日志目录存在
-if (!existsSync(LOGS_DIR)) {
-  mkdirSync(LOGS_DIR, { recursive: true });
-}
+// 已移除旧的 writeErrorLog，改用 utils/logger.js
 
-// 错误日志助手 (使用同步 IO 确保崩溃时也能写入)
-const writeErrorLog = (err, req = null) => {
-  const timestamp = new Date().toISOString();
-  const entry = {
-    timestamp,
-    message: err.message,
-    stack: err.stack,
-    url: req ? req.originalUrl : 'N/A',
-    method: req ? req.method : 'N/A',
-    body: req ? req.body : {}
-  };
-  const logEntry = `[${timestamp}] ERROR: ${JSON.stringify(entry, null, 2)}\n${'-'.repeat(80)}\n`;
-  try {
-    appendFileSync(ERROR_LOG, logEntry);
-  } catch (logErr) {
-    console.error('[Logger] Failed to write error log:', logErr.message);
-  }
-};
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -57,6 +37,10 @@ if (!existsSync(UPLOADS_PATH)) {
 
 app.use(cors());
 app.use(express.json());
+
+// 请求日志中中间件
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms', { stream: logger.stream }));
+
 app.use('/uploads', express.static(UPLOADS_PATH));
 // 托管前端静态文件
 app.use(express.static(CLIENT_DIST_PATH));
@@ -164,7 +148,7 @@ app.get('/api/notes', authenticateToken, async (req, res) => {
     
     res.json(formattedNotes);
   } catch (error) {
-    console.error('Fetch notes error:', error);
+    logger.error('Fetch notes error: %o', error);
     res.status(500).json({ error: '读取笔记失败' });
   }
 });
@@ -215,7 +199,7 @@ app.post('/api/notes', authenticateToken, (req, res) => {
       } 
     });
   } catch (error) {
-    console.error('Save error:', error);
+    logger.error('Save error: %o', error);
     res.status(500).json({ error: '保存笔记失败' });
   }
 });
@@ -281,43 +265,7 @@ app.post('/api/ai/format', authenticateToken, async (req, res) => {
   }
 });
 
-// --- 数据迁移逻辑 (从 JSON 到 SQLite) ---
-async function migrateData() {
-  const JSON_PATH = path.join(__dirname, '..', 'data', 'notes.json');
-  if (existsSync(JSON_PATH)) {
-    try {
-      const data = JSON.parse(await fs.readFile(JSON_PATH, 'utf-8'));
-      if (data.length > 0) {
-        // 检查数据库是否为空
-        const count = db.prepare('SELECT COUNT(*) as count FROM notes').get().count;
-        if (count === 0) {
-          console.log('Detected legacy JSON data. Starting migration...');
-          // 创建一个默认迁移用户 (如果不存在)
-          let defaultUser = db.prepare('SELECT id FROM users WHERE username = ?').get('admin');
-          if (!defaultUser) {
-            const userId = uuidv4();
-            const hashed = await bcrypt.hash('admin123', 10);
-            db.prepare('INSERT INTO users (id, username, password) VALUES (?, ?, ?)').run(userId, 'admin', hashed);
-            defaultUser = { id: userId };
-          }
-
-          const insert = db.prepare('INSERT INTO notes (id, user_id, title, content, category, tags, pinned, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
-          db.transaction((notes) => {
-            for (const n of notes) {
-              insert.run(n.id || uuidv4(), defaultUser.id, n.title || '', n.content || '', n.category || '默认', JSON.stringify(n.tags || []), n.pinned ? 1 : 0, n.createdAt || new Date().toISOString(), n.updatedAt || new Date().toISOString());
-            }
-          })(data);
-          
-          console.log(`Successfully migrated ${data.length} notes to SQLite.`);
-        }
-      }
-      // 备份并重命名
-      await fs.rename(JSON_PATH, JSON_PATH + '.bak');
-    } catch (err) {
-      console.error('Migration failed:', err);
-    }
-  }
-}
+// 已移除旧的 JSON 数据迁移逻辑，数据已成功迁移至 SQLite (notes.db)
 
 // 所有非 API 请求重定向到前端入口 (支持 React Router)
 app.use((req, res, next) => {
@@ -331,37 +279,39 @@ app.use((req, res, next) => {
 
 // 全局错误处理中间件
 app.use((err, req, res, next) => {
-  console.error('Server Error:', err);
-  writeErrorLog(err, req);
+  logger.error('Unhandled Server Error: %o', { 
+    message: err.message, 
+    stack: err.stack,
+    url: req.originalUrl,
+    method: req.method,
+    body: req.body
+  });
   res.status(500).json({ error: '服务器内部错误' });
 });
 
 app.listen(PORT, async () => {
-  await migrateData();
-  console.log(`Server is running on http://localhost:${PORT}`);
+  logger.info(`Server is running on http://localhost:${PORT}`);
 }).on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
-    console.error(`[Error] 端口 ${PORT} 已被占用！请先关闭其他运行中的项目进程。`);
-    writeErrorLog(new Error(`Port ${PORT} in use`));
+    logger.error(`端口 ${PORT} 已被占用！请先关闭其他运行中的项目进程。`);
     process.exit(1);
   } else {
-    console.error('Server failed to start:', err);
-    writeErrorLog(err);
+    logger.error('Server failed to start: %o', err);
   }
 });
 
 // 优雅退出处理
-const gracefulShutdown = () => {
-  console.log('\nReceived signal to terminate. Closing database connection...');
+const gracefulShutdown = (signal) => {
+  logger.info(`Received ${signal} to terminate. Closing database connection...`);
   try {
     db.close();
-    console.log('SQLite connection closed. Exiting process.');
+    logger.info('SQLite connection closed. Exiting process.');
     process.exit(0);
   } catch (err) {
-    console.error('Error during database closure:', err);
+    logger.error('Error during database closure: %o', err);
     process.exit(1);
   }
 };
 
-process.on('SIGINT', gracefulShutdown);
-process.on('SIGTERM', gracefulShutdown);
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));

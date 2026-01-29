@@ -1,7 +1,16 @@
 # 强制设置控制台输出为 UTF8 以解决中文乱码
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
+# 从根目录读取端口号 (.env.production)
+$prodEnvFile = Join-Path $PSScriptRoot ".env.production"
 $port = 3000
+
+if (Test-Path $prodEnvFile) {
+    $portLine = Get-Content $prodEnvFile | Where-Object { $_ -match "^PORT=(\d+)" }
+    if ($portLine -and $portLine -match "PORT=(\d+)") {
+        $port = $Matches[1]
+    }
+}
 Write-Host "正在检查端口 $port 占用情况..." -ForegroundColor Cyan
 
 # 查找占用端口的进程 ID
@@ -13,7 +22,8 @@ if ($processId) {
     Start-Sleep -Seconds 1
 }
 
-Write-Host "正在启动全栈服务..." -ForegroundColor Green
-cd server
+Write-Host "正在启动全栈服务 (生产模式)..." -ForegroundColor Green
+Set-Location server
 $env:PORT = $port
+$env:NODE_ENV = "production"
 node index.js
