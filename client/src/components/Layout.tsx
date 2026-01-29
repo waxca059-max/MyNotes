@@ -48,7 +48,7 @@ export const Layout: React.FC<LayoutProps> = ({ sidebar, children, onOpenCommand
         </div>
       </aside>
 
-      <main className="flex-1 flex flex-col bg-white dark:bg-slate-900 relative pt-14 md:pt-0">
+      <main className="flex-1 flex flex-col bg-white dark:bg-slate-900 relative pt-14 md:pt-0 overflow-x-hidden">
         {children}
       </main>
     </div>

@@ -57,11 +57,17 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
   const [showAIChat, setShowAIChat] = React.useState(false);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
-  // 移动端默认单栏视图 (修复“挤在一起”的问题)
+  // 自动切换移动端单栏视图
   React.useEffect(() => {
-    if (window.innerWidth < 768 && view === 'both') {
-      setView('edit');
-    }
+    const checkSize = () => {
+      if (window.innerWidth < 768 && view === 'both') {
+        setView('edit');
+      }
+    };
+    
+    checkSize();
+    window.addEventListener('resize', checkSize);
+    return () => window.removeEventListener('resize', checkSize);
   }, [view]);
 
   const handleAiSummarize = async () => {
@@ -336,9 +342,9 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
   const readingTime = Math.ceil(wordCount / 400) || 1;
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-slate-950 transition-colors">
-      <header className="h-16 px-6 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between shrink-0 bg-white/50 dark:bg-slate-950/50 backdrop-blur-sm z-10">
-        <div className="flex-1 min-w-0 max-w-2xl flex items-center space-x-2 md:space-x-3">
+    <div className="flex flex-col h-full bg-white dark:bg-slate-950 transition-colors overflow-hidden">
+      <header className="h-16 px-3 md:px-6 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between shrink-0 bg-white/50 dark:bg-slate-950/50 backdrop-blur-sm z-10">
+        <div className="flex-1 min-w-0 flex items-center space-x-1 md:space-x-3">
           <Button
             variant="ghost"
             size="icon"
@@ -352,9 +358,9 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
             placeholder="笔记标题"
             value={note.title}
             onChange={(e) => onChange({ title: e.target.value })}
-            className="text-xl font-bold bg-transparent border-none outline-none w-full text-slate-900 dark:text-slate-100 placeholder:text-slate-200 dark:placeholder:text-slate-800"
+            className="text-lg md:text-xl font-bold bg-transparent border-none outline-none w-full min-w-0 text-slate-900 dark:text-slate-100 placeholder:text-slate-200 dark:placeholder:text-slate-800"
           />
-          <Badge variant="outline" className="hidden sm:flex text-[10px] h-5 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider shrink-0">
+          <Badge variant="outline" className="hidden lg:flex text-[10px] h-5 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider shrink-0">
             {note.category}
           </Badge>
         </div>
@@ -373,7 +379,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
               variant={view === 'both' ? 'secondary' : 'ghost'}
               size="icon"
               onClick={() => setView('both')}
-              className={`h-8 w-8 rounded-md transition-all ${view === 'both' ? 'bg-white dark:bg-slate-800 shadow-sm' : 'text-slate-500'}`}
+              className={`hidden md:flex h-8 w-8 rounded-md transition-all ${view === 'both' ? 'bg-white dark:bg-slate-800 shadow-sm' : 'text-slate-500'}`}
             >
               <Columns size={15} />
             </Button>
@@ -423,28 +429,28 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
             </Button>
           </div>
           
-          <Separator orientation="vertical" className="h-6 bg-slate-200 dark:bg-slate-800" />
+          <Separator orientation="vertical" className="h-6 bg-slate-200 dark:bg-slate-800 hidden sm:block" />
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 md:gap-2">
             <Button
               variant={showAIChat ? "secondary" : "ghost"}
               size="sm"
               onClick={() => setShowAIChat(!showAIChat)}
-              className={`h-9 px-3 gap-2 rounded-lg border border-transparent transition-all ${showAIChat ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 border-indigo-200' : 'text-slate-600'}`}
+              className={`h-9 px-2 md:px-3 gap-2 rounded-lg border border-transparent transition-all ${showAIChat ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 border-indigo-200' : 'text-slate-600'}`}
             >
               <MessageSquare size={16} />
-              <span className="hidden sm:inline text-xs font-bold">AI 助手</span>
+              <span className="hidden xl:inline text-xs font-bold">AI 助手</span>
             </Button>
 
-            <Separator orientation="vertical" className="h-6 bg-slate-200 dark:bg-slate-800" />
+            <Separator orientation="vertical" className="h-6 bg-slate-200 dark:bg-slate-800 hidden md:block" />
             <Button
               variant="outline"
               onClick={handleExport}
               title="导出为 Markdown"
-              className="h-9 px-2 md:px-3 rounded-lg border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 flex items-center"
+              className="hidden sm:flex h-9 px-2 md:px-3 rounded-lg border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 items-center"
             >
               <Download size={16} />
-              <span className="hidden sm:inline text-xs font-bold ml-1.5">导出</span>
+              <span className="hidden xl:inline text-xs font-bold ml-1.5">导出</span>
             </Button>
             
             <Button
@@ -453,7 +459,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
               className="gap-2 px-3 md:px-5 py-2 h-9 rounded-lg shadow-sm active:scale-95 transition-all bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-950 hover:bg-slate-800 dark:hover:bg-slate-200"
             >
               <Save size={16} />
-              <span className="hidden xs:inline font-bold">保存</span>
+              <span className="hidden sm:inline font-bold">保存</span>
             </Button>
           </div>
         </div>
@@ -567,7 +573,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
               onKeyDown={handleKeyDown}
               onDrop={handleDrop}
               placeholder="开始编写 Markdown 笔记 (支持粘贴/拖入图片)..."
-              className={`flex-1 p-10 outline-none resize-none text-slate-700 dark:text-slate-300 leading-relaxed font-mono text-[14px] bg-white dark:bg-slate-950 shadow-sm placeholder:text-slate-300 dark:placeholder:text-slate-700 selection:bg-indigo-50 dark:selection:bg-indigo-900/50 ${view === 'both' ? 'border-r-2 border-slate-100/50 dark:border-slate-800/30' : ''}`}
+              className={`flex-1 p-3 md:p-10 outline-none resize-none text-slate-700 dark:text-slate-300 leading-relaxed font-mono text-[14px] bg-white dark:bg-slate-950 shadow-sm placeholder:text-slate-300 dark:placeholder:text-slate-700 selection:bg-indigo-50 dark:selection:bg-indigo-900/50 w-full min-w-0 ${view === 'both' ? 'border-r-2 border-slate-100/50 dark:border-slate-800/30' : ''}`}
             />
           </div>
         )}
@@ -578,8 +584,8 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
                 Preview / 效果预览
               </Badge>
             </div>
-            <ScrollArea className="flex-1 bg-slate-50 dark:bg-slate-900/20 shadow-inner">
-              <div className="p-10 prose prose-slate dark:prose-invert max-w-none prose-h1:text-2xl prose-h2:text-xl prose-p:text-slate-600 dark:prose-p:text-slate-400 prose-code:text-indigo-600 dark:prose-code:text-indigo-400 prose-pre:bg-transparent prose-pre:p-0">
+            <ScrollArea className="flex-1 bg-slate-50 dark:bg-slate-900/20 shadow-inner w-full min-w-0">
+              <div className="p-3 md:p-10 prose prose-sm md:prose-base prose-slate dark:prose-invert max-w-full prose-h1:text-xl md:prose-h1:text-2xl prose-h2:text-lg md:prose-h2:text-xl prose-p:text-slate-600 dark:prose-p:text-slate-400 prose-code:text-indigo-600 dark:prose-code:text-indigo-400 prose-pre:bg-transparent prose-pre:p-0 break-words overflow-x-auto overflow-y-hidden">
                 <ReactMarkdown components={components}>{note.content || '*暂无内容*'}</ReactMarkdown>
               </div>
             </ScrollArea>
