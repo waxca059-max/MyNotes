@@ -1,6 +1,7 @@
 import Database from 'better-sqlite3';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { existsSync, mkdirSync } from 'fs';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -9,6 +10,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const dbPath = path.resolve(__dirname, process.env.DATABASE_PATH || './data/notes.db');
+const dbDir = path.dirname(dbPath);
+
+if (!existsSync(dbDir)) {
+  mkdirSync(dbDir, { recursive: true });
+}
+
 const db = new Database(dbPath);
 
 // 初始化数据库表

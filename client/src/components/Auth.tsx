@@ -81,7 +81,7 @@ export const Auth: React.FC<AuthProps> = ({ onAuthSuccess }) => {
                   placeholder="admin"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="bg-slate-50 dark:bg-slate-950 border-none h-11 rounded-xl focus-visible:ring-1 focus-visible:ring-slate-300 transition-all font-medium"
+                  className="bg-slate-50 dark:bg-slate-950 border-none h-11 rounded-xl focus-visible:ring-1 focus-visible:ring-slate-300 transition-all font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
                 />
               </div>
               <div className="space-y-2">
@@ -91,7 +91,7 @@ export const Auth: React.FC<AuthProps> = ({ onAuthSuccess }) => {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="bg-slate-50 dark:bg-slate-950 border-none h-11 rounded-xl focus-visible:ring-1 focus-visible:ring-slate-300 transition-all font-medium"
+                  className="bg-slate-50 dark:bg-slate-950 border-none h-11 rounded-xl focus-visible:ring-1 focus-visible:ring-slate-300 transition-all font-medium text-slate-900 dark:text-slate-100"
                 />
               </div>
             </CardContent>

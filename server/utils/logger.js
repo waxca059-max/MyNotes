@@ -2,11 +2,16 @@ import winston from 'winston';
 import 'winston-daily-rotate-file';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { existsSync, mkdirSync } from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const LOGS_DIR = path.join(__dirname, '..', 'logs');
+
+if (!existsSync(LOGS_DIR)) {
+  mkdirSync(LOGS_DIR, { recursive: true });
+}
 
 // 定义日志格式
 const logFormat = winston.format.combine(

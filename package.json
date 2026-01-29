@@ -5,10 +5,11 @@
   "scripts": {
     "install:all": "npm install && cd client && npm install && cd ../server && npm install",
     "build:client": "cd client && npm run build",
-    "build:server": "rimraf server/public && shx mkdir -p server/public && shx cp -r client/dist/* server/public/",
-    "build": "npm run build:client && npm run build:server",
-    "package": "npm run build && rimraf release.zip && jszip -r release.zip server/",
+    "build:dist": "rimraf dist && shx mkdir -p dist && shx cp -r server/* dist/ && shx cp server/.env* dist/ && rimraf dist/node_modules dist/public dist/data dist/logs && shx mkdir -p dist/public && shx cp -r client/dist/* dist/public/ && cd dist && npm install --omit=dev",
+    "build": "npm run build:client && npm run build:dist",
+    "package": "npm run build && rimraf release.zip && jszip -r release.zip dist/",
     "start": "cd server && cross-env NODE_ENV=production node index.js",
+    "start:dist": "cd dist && cross-env NODE_ENV=production node index.js",
     "dev:server": "cd server && npx nodemon index.js",
     "dev:client": "cd client && npm run dev",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\""
@@ -16,6 +17,7 @@
   "devDependencies": {
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
+    "jszip-cli": "^1.4.24",
     "rimraf": "^6.1.2",
     "shx": "^0.4.0"
   }

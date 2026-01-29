@@ -87,7 +87,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             placeholder="搜索笔记..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-9 h-11 bg-white/40 dark:bg-black/20 border-white/10 dark:border-white/5 shadow-inner rounded-xl focus:ring-4 focus:ring-blue-500/10 transition-all placeholder:text-slate-400 text-sm italic"
+            className="pl-9 h-11 bg-white/40 dark:bg-black/20 border-white/10 dark:border-white/5 shadow-inner rounded-xl focus:ring-4 focus:ring-blue-500/10 transition-all placeholder:text-slate-400 text-sm text-slate-900 dark:text-slate-100 italic"
           />
         </div>
 
