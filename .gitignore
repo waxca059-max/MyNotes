@@ -39,3 +39,6 @@ Thumbs.db
 server/debug_*.js
 server/server_log.txt
 server/test_*.js
+
+# Uploads
+data/uploads/
