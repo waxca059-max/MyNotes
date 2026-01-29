@@ -261,10 +261,6 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ note, onChange, 
           e.preventDefault();
           applyFormat('link');
           break;
-        case 's':
-          e.preventDefault();
-          onSave();
-          break;
       }
     }
   };

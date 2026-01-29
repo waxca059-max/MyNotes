@@ -93,37 +93,44 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* 标签云过滤 */}
         {allTags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 py-1">
-            <Badge
-              variant={selectedTag === null ? "default" : "secondary"}
-              onClick={() => onSelectTag(null)}
-              className={`cursor-pointer text-[10px] px-2 py-0 h-5 transition-all ${
-                selectedTag === null ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900' : 'bg-slate-200/50 dark:bg-slate-800/50 text-slate-500'
-              }`}
-            >
-              全部
-            </Badge>
-            {allTags.map(tag => (
-              <Badge
-                key={tag}
-                variant={selectedTag === tag ? "default" : "secondary"}
-                onClick={() => onSelectTag(selectedTag === tag ? null : tag)}
-                className={`cursor-pointer text-[10px] px-2 py-0 h-5 transition-all ${
-                  selectedTag === tag 
-                    ? 'bg-indigo-600 dark:bg-indigo-400 text-white dark:text-slate-900 shadow-sm' 
-                    : 'bg-indigo-50/50 dark:bg-indigo-900/20 text-indigo-500 dark:text-indigo-400 border-none'
-                }`}
-              >
-                #{tag}
-              </Badge>
-            ))}
+          <div className="space-y-2">
+            <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider px-1">
+              标签筛选
+            </span>
+            <ScrollArea className="h-32 -mx-1 px-1 pr-4 border border-transparent" type="always">
+              <div className="flex flex-wrap gap-1.5 py-1 pr-2">
+                <Badge
+                  variant={selectedTag === null ? "default" : "secondary"}
+                  onClick={() => onSelectTag(null)}
+                  className={`cursor-pointer text-[10px] px-2 py-0 h-5 transition-all ${
+                    selectedTag === null ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900' : 'bg-slate-200/50 dark:bg-slate-800/50 text-slate-500'
+                  }`}
+                >
+                  全部
+                </Badge>
+                {allTags.map(tag => (
+                  <Badge
+                    key={tag}
+                    variant={selectedTag === tag ? "default" : "secondary"}
+                    onClick={() => onSelectTag(selectedTag === tag ? null : tag)}
+                    className={`cursor-pointer text-[10px] px-2 py-0 h-5 transition-all ${
+                      selectedTag === tag 
+                        ? 'bg-indigo-600 dark:bg-indigo-400 text-white dark:text-slate-900 shadow-sm' 
+                        : 'bg-indigo-50/50 dark:bg-indigo-900/20 text-indigo-500 dark:text-indigo-400 border-none'
+                    }`}
+                  >
+                    #{tag}
+                  </Badge>
+                ))}
+              </div>
+            </ScrollArea>
           </div>
         )}
       </div>
 
       <Separator className="bg-slate-200/60 dark:bg-slate-800/60" />
 
-      <ScrollArea className="flex-1 px-3 py-4">
+      <ScrollArea className="flex-1 min-h-0 px-3 py-4">
         {sortedNotes.length === 0 ? (
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
@@ -203,23 +210,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
       </ScrollArea>
 
-      <div className="p-4 border-t border-slate-200/60 dark:border-slate-800 space-y-3 bg-white/50 dark:bg-slate-950/50 transition-colors">
+      <div className="p-4 border-t border-slate-200/60 dark:border-slate-800 space-y-3 bg-white/50 dark:bg-slate-950/50 transition-colors shrink-0">
         <div className="flex items-center justify-between">
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            onClick={(e) => {
+              e.stopPropagation();
+              setTheme(theme === 'dark' ? 'light' : 'dark');
+            }}
             className="h-8 w-8 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
           >
             <Sun size={16} className="rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <Moon size={16} className="absolute rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             <span className="sr-only">切换主题</span>
           </Button>
-
+ 
           <Button
             variant="ghost"
             size="icon"
-            onClick={onLogout}
+            onClick={(e) => {
+              e.stopPropagation();
+              onLogout();
+            }}
             title="退出登录"
             className="h-8 w-8 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all"
           >

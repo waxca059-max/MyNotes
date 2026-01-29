@@ -21,20 +21,17 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({ noteContent, onClose, 
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // 自动滚动到底部
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
 
-  const handleSend = async () => {
-    if (!input.trim() || loading) return;
+  const sendMessage = async (text: string) => {
+    if (!text.trim() || loading) return;
 
-    const userQuestion = input.trim();
-    setInput('');
+    const userQuestion = text.trim();
     const newMessages: Message[] = [...messages, { role: 'user', content: userQuestion }];
     setMessages(newMessages);
 
@@ -49,6 +46,11 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({ noteContent, onClose, 
     }
   };
 
+  const handleSend = () => {
+    sendMessage(input);
+    setInput('');
+  };
+
   const handleInsert = (text: string) => {
     onInsertContent(`\n\n${text}`);
     toast.success('已插入到笔记');
@@ -60,7 +62,7 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({ noteContent, onClose, 
       animate={{ x: 0, opacity: 1 }}
       exit={{ x: '100%', opacity: 0 }}
       transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-      className="w-full md:w-[500px] h-full border-l border-slate-100 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 md:bg-slate-50/80 md:dark:bg-slate-900/50 backdrop-blur-2xl flex flex-col shadow-2xl relative z-40"
+      className="w-full md:w-[500px] h-full border-l border-slate-100 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 md:bg-slate-50/80 md:dark:bg-slate-900/50 backdrop-blur-2xl flex flex-col shadow-2xl relative z-40"
     >
       <header className="h-16 px-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
@@ -79,7 +81,7 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({ noteContent, onClose, 
 
       <div className="flex-1 overflow-hidden relative">
         <ScrollArea className="h-full px-5 py-6">
-          <div ref={scrollRef} className="space-y-6">
+          <div className="space-y-6">
             {messages.length === 0 && (
               <div className="flex flex-col items-center justify-center py-10 text-center space-y-4">
                 <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-2xl shadow-sm flex items-center justify-center">
@@ -93,8 +95,9 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({ noteContent, onClose, 
                   {['总结这篇笔记的核心点', '帮我精简一下目前的内容', '给我一些相关的创意灵感'].map(suggestion => (
                     <button
                       key={suggestion}
-                      onClick={() => setInput(suggestion)}
-                      className="text-xs text-left p-3.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 border border-slate-100 dark:border-slate-800 rounded-lg text-slate-500 dark:text-slate-400 transition-colors shadow-sm"
+                      onClick={() => sendMessage(suggestion)}
+                      disabled={loading}
+                      className="text-xs text-left p-3.5 bg-white dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 border border-slate-100 dark:border-slate-800 rounded-lg text-slate-500 dark:text-slate-400 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {suggestion}
                     </button>
@@ -161,6 +164,9 @@ export const AIChatPanel: React.FC<AIChatPanelProps> = ({ noteContent, onClose, 
                 </div>
               </motion.div>
             )}
+
+            {/* 滚动锚点 */}
+            <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
       </div>

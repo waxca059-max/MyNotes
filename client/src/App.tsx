@@ -27,8 +27,15 @@ export default function App() {
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
-  // 用于优化自动保存：记录最后一次成功保存或加载的内容
+  // 用于优化自动保存：记录最后一次成功保存或加载的内容/标签
   const lastSavedContentRef = useRef<string | null>(null);
+  const lastSavedTagsRef = useRef<string[] | null>(null);
+  const notesRef = useRef(notes);
+  
+  // 实时同步 notes 到 ref，供不依赖 notes 变化的 callback 使用
+  useEffect(() => {
+    notesRef.current = notes;
+  }, [notes]);
 
   // 1. 获取数据逻辑
   const fetchNotes = useCallback(async () => {
@@ -62,14 +69,18 @@ export default function App() {
     [notes, activeNoteId]
   );
 
-  // 当切换笔记时，记录当前笔记内容作为“基准”，避免跨笔记比对错误
+  // 当“切换”笔记时，重置最后保存的内容引用，避免自动保存误触发或不触发
   useEffect(() => {
-    if (activeNote) {
-      lastSavedContentRef.current = activeNote.content;
+    if (activeNoteId) {
+      // 只有在切换到不同的笔记时，才初始化基准内容
+      const currentNote = notesRef.current.find(n => n.id === activeNoteId);
+      lastSavedContentRef.current = currentNote?.content || '';
+      lastSavedTagsRef.current = currentNote?.tags || [];
     } else {
       lastSavedContentRef.current = null;
+      lastSavedTagsRef.current = null;
     }
-  }, [activeNoteId, activeNote]); // 监听 ID 变化及内容初始化
+  }, [activeNoteId]); // 仅监听 ID 变化，notes 通过 Ref 访问以避免误触发
 
   const filteredNotesByTag = useMemo(() => {
     let result = notes;
@@ -109,7 +120,7 @@ export default function App() {
   const handleSaveNote = useCallback(async (updates: Partial<Note>, silent = false) => {
     if (!activeNoteId) return;
     try {
-      const currentNote = notes.find(n => n.id === activeNoteId);
+      const currentNote = notesRef.current.find(n => n.id === activeNoteId);
       if (!currentNote) return;
       
       const updatedNote = { ...currentNote, ...updates };
@@ -118,13 +129,14 @@ export default function App() {
         setNotes(prev => prev.map(n => n.id === activeNoteId ? res.data : n));
         // 更新“最后保存”引用
         lastSavedContentRef.current = res.data.content;
+        lastSavedTagsRef.current = res.data.tags || [];
         if (!silent) toast.success("已保存");
       }
     } catch (error: unknown) {
       console.error('Save failed:', error);
       if (!silent) toast.error("保存失败");
     }
-  }, [notes, activeNoteId]);
+  }, [activeNoteId]); // 移除了 notes 依赖，确保 handleSaveNote 引用稳定
 
   const handleDeleteNote = useCallback(async (id: string) => {
     if (!confirm('确定删除此笔记吗？')) return;
@@ -149,19 +161,46 @@ export default function App() {
     toast.success('已安全退出');
   };
 
-  // 4. 优化后的自动保存逻辑 (1.5s 防抖 + 内容变更检测)
-  useEffect(() => {
-    if (loading || !activeNote || !activeNote.id) return;
+  const handleSelectNote = useCallback((id: string) => {
+    if (id === activeNoteId) return;
     
-    // 核心优化：如果内容没有变化，不启动自动保存
-    if (activeNote.content === lastSavedContentRef.current) return;
+    // 切换前检查是否有未处理的变更（内容或标签）
+    const currentActiveNote = notesRef.current.find(n => n.id === activeNoteId);
+    if (currentActiveNote) {
+      const isContentDirty = currentActiveNote.content !== lastSavedContentRef.current;
+      const isTagsDirty = JSON.stringify(currentActiveNote.tags || []) !== JSON.stringify(lastSavedTagsRef.current || []);
+      
+      if (isContentDirty || isTagsDirty) {
+        handleSaveNote({ 
+          content: currentActiveNote.content,
+          tags: currentActiveNote.tags 
+        }, true);
+      }
+    }
+    
+    setActiveNoteId(id);
+  }, [activeNoteId, handleSaveNote]);
+
+  // 4. 优化后的自动保存逻辑 (1.5s 防抖 + 内容与标签变更检测)
+  useEffect(() => {
+    const content = activeNote?.content;
+    const tags = activeNote?.tags;
+    const id = activeNote?.id;
+
+    if (loading || !id || content === undefined) return;
+    
+    // 检查内容或标签是否发生实质变化
+    const isContentDirty = content !== lastSavedContentRef.current;
+    const isTagsDirty = JSON.stringify(tags || []) !== JSON.stringify(lastSavedTagsRef.current || []);
+    
+    if (!isContentDirty && !isTagsDirty) return;
 
     const timer = setTimeout(() => {
-      handleSaveNote(activeNote, true);
+      handleSaveNote({ content, tags }, true);
     }, 1500);
 
     return () => clearTimeout(timer);
-  }, [activeNote, loading, handleSaveNote]);
+  }, [activeNote?.id, activeNote?.content, activeNote?.tags, loading, handleSaveNote]); // handleSaveNote 现在趋于稳定
 
   // 5. 统一的快捷键支持
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -173,9 +212,9 @@ export default function App() {
       setIsCommandOpen(prev => !prev);
     } else if (isMod && key === 's') {
       e.preventDefault();
-      if (activeNote) handleSaveNote(activeNote, false);
+      handleSaveNote({}, false);
     }
-  }, [activeNote, handleSaveNote]);
+  }, [handleSaveNote]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -212,7 +251,7 @@ export default function App() {
         <Sidebar 
           notes={filteredNotesByTag}
           activeNoteId={activeNoteId}
-          onSelectNote={setActiveNoteId}
+          onSelectNote={handleSelectNote}
           onAddNote={handleAddNote}
           onDeleteNote={handleDeleteNote}
           onSearchChange={setSearchTerm}
@@ -250,7 +289,7 @@ export default function App() {
         notes={notes}
         isOpen={isCommandOpen}
         setIsOpen={setIsCommandOpen}
-        onSelectNote={setActiveNoteId}
+        onSelectNote={handleSelectNote}
         onNewNote={handleAddNote}
         onLogout={handleLogout}
       />

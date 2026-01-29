@@ -36,11 +36,14 @@ export const Layout: React.FC<LayoutProps> = ({ sidebar, children, onOpenCommand
       )}
 
       <aside className={`
-        fixed inset-y-0 left-0 z-40 w-72 md:w-80 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-xl md:shadow-none transition-transform duration-300
+        fixed inset-y-0 left-0 z-40 w-72 md:w-80 h-full border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 shadow-xl md:shadow-none transition-transform duration-300
         md:relative md:translate-x-0
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        <div className="h-full" onClick={() => { if (window.innerWidth < 768) setIsSidebarOpen(false); }}>
+        <div 
+          className="h-full flex flex-col overflow-hidden relative" 
+          onClick={(e) => e.stopPropagation()}
+        >
           {sidebar}
         </div>
       </aside>
