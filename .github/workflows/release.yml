@@ -33,6 +33,14 @@ jobs:
           mkdir release_package
           cp -r client/dist release_package/dist
           cp -r server release_package/server
+          # 包含启动/停止脚本
+          cp start.* release_package/
+          cp stop.* release_package/
+          # 包含核心配置文件
+          cp package.json release_package/
+          cp .env.production release_package/.env.production
+          cp .env.example release_package/.env.example
+          # 移除 server 中的 node_modules 以减小体积
           rm -rf release_package/server/node_modules
           zip -r release-package.zip release_package
 
